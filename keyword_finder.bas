@@ -53,7 +53,7 @@ Sub ScanDocument()
 
     fileNum = FreeFile
 
-    Open "C:\Users\Evan\Documents\debate_words.txt" For Input As #fileNum
+    Open "INSERT\YOUR\FILE\NAME\HERE.txt" For Input As #fileNum
 
     Do While Not EOF(fileNum)
 

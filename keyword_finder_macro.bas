@@ -1,5 +1,7 @@
-Attribute VB_Name = "Module1"
-Sub ScanDocument()
+' CHANGE THIS TO THE FULL PATH OF YOUR KEYWORD TEXT FILE
+Const KEYWORD_FILE As String = "YOUR\PATH\HERE\debate_words.txt"
+
+Public Sub ScanDocument()
 
     Dim keywords As Collection
     Dim keyword As Variant
@@ -14,63 +16,49 @@ Sub ScanDocument()
     Dim doc As Document
 
     Dim newPath As String
-    Dim fso As Object
+    Dim baseFileName As String
+
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
 
     Set originalDoc = ActiveDocument
 
     If originalDoc.Path = "" Then
-        MsgBox "Please save the document first."
-        Exit Sub
+        MsgBox "Please save the document first.", vbExclamation
+        GoTo CleanUp
     End If
-
-    newPath = Environ("USERPROFILE") & _
-        "\Downloads\" & _
-        "[K] " & Left(originalDoc.Name, InStrRev(originalDoc.Name, ".") - 1) & _
-        ".docx"
 
     originalDoc.Save
 
-    Set fso = CreateObject("Scripting.FileSystemObject")
+    baseFileName = "[K] " & Left(originalDoc.Name, InStrRev(originalDoc.Name, ".") - 1) & ".docx"
+    newPath = GetDownloadsPath() & baseFileName
 
-    If fso.FileExists(newPath) Then
-        On Error Resume Next
-        Kill newPath
-        On Error GoTo 0
-    End If
+    Call CloseDocumentIfOpen(baseFileName)
 
-    fso.CopyFile originalDoc.FullName, newPath, True
-
-    Set doc = Documents.Open(newPath)
+    Set doc = Documents.Add(originalDoc.FullName)
+    doc.SaveAs2 FileName:=newPath, FileFormat:=wdFormatDocumentDefault
 
     Set keywords = New Collection
 
     fileNum = FreeFile
-
-    ' CHANGE THIS TO MATCH THE NAME OF YOUR KEYWORD TEXT FILE
-    Open "INSERT\YOUR\FILE\PATH\HERE.txt" For Input As #fileNum
+    Open KEYWORD_FILE For Input As #fileNum
 
     Do While Not EOF(fileNum)
-
         Line Input #fileNum, lineText
-
         lineText = Trim(lineText)
 
         If lineText <> "" Then
             keywords.Add lineText
         End If
-
     Loop
 
     Close #fileNum
-
-    Application.ScreenUpdating = False
 
     For Each keyword In keywords
 
         Set searchRange = doc.Content
 
         With searchRange.Find
-
             .ClearFormatting
             .Text = CStr(keyword)
 
@@ -91,19 +79,40 @@ Sub ScanDocument()
                 searchRange.Collapse wdCollapseEnd
 
             Loop
-
         End With
 
     Next keyword
-
-    Application.ScreenUpdating = True
 
     doc.Save
 
     MsgBox totalMatches & " occurrences found." & vbCrLf & _
            "Saved as:" & vbCrLf & newPath
 
+CleanUp:
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+
 End Sub
 
+Public Function GetDownloadsPath() As String
+    Dim downloadsPath As String
+    Dim username As String
 
+#If Mac Then
+    username = Environ("USER")
+    downloadsPath = "/Users/" & username & "/Downloads/"
+#Else
+    Dim WshShell As Object
+    Set WshShell = CreateObject("WScript.Shell")
+    downloadsPath = WshShell.ExpandEnvironmentStrings("%USERPROFILE%") & "\Downloads\"
+#End If
+
+    GetDownloadsPath = downloadsPath
+End Function
+
+Public Sub CloseDocumentIfOpen(docName As String)
+    On Error Resume Next
+    Documents(docName).Close SaveChanges:=wdDoNotSaveChanges
+    On Error GoTo 0
+End Sub
 

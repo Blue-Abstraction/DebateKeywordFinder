@@ -15,12 +15,33 @@ Put the text file wherever is convenient for you. Just remember the path! You'll
 
 ### 2. Opening Microsoft Visual Basic for Applications in Word
 #### Mac
+To open VBA for Mac, press `Option + F11`.
+
+You can also use your mouse:
+
+> Navigate to the menu bar > Tools > Macro > Visual Basic Editor
+
 
 #### Windows
+To open VBA for Windows, press `Alt + F11`.
+
+You can also use your mouse:
+
+> Navigate to the menu bar > File > Options > Customize Ribbon > Under Main Tabs, check Developer > OK
+
+Then,
+
+> Navigate to the menu bar > Developer > Visual Basic
 
 ### 3. Adding the Module for the Macro
+You should now have the Visual Basic editor open.
+
+If you have Verbatim installed, expand `Verbatim`, then expand `Modules`. Open `Custom`, and paste everything from the `keyword_finder_macro.bas` file. This is when you need the path to your file for the key words you want to search. At the top, underneath the green comment, change `YOUR\PATH\HERE\debate_words.txt` to your actual path.
+
+If you don't have Verbatim, expand `Normal` and right-click on `Modules`. Hover over `Insert` and click `Module`. You can now paste everything from the `keyword_finder_macro.bas` file here. Remember to change your path!
 
 ## Setting Macro Keybinds
+Now you should have the code for the macro in Visual Basic. This step will show you how to set up the keybinds to run the macro.
 #### Mac
 
 #### Windows
